@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import styled from "styled-components";
 import {RepoProps} from "./types/repo";
 import {RepoCard} from "./components/repoCard";
@@ -13,15 +13,19 @@ function App() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
-    const handleNextPage = () => {
+    useEffect(() => {
+        findRepo().then(r => console.log('serach'));
+    }, [currentPage]);
+
+    const handleNextPage = async () => {
         if (totalPages > currentPage) {
-            setCurrentPage(currentPage + 1)
+            await setCurrentPage(currentPage + 1)
         }
     }
 
-    const handlePreviusPage = () => {
+    const handlePreviusPage = async () => {
         if (currentPage > 1) {
-            setCurrentPage(currentPage - 1)
+            await setCurrentPage(currentPage - 1)
         }
     }
 
@@ -37,6 +41,10 @@ function App() {
 
     async function fetchRepo(repoName: string) {
         try {
+            if (!repoName || !totalRepositoriesPerPage || !currentPage) {
+                return;
+            }
+
             const response = await fetch(`https://api.github.com/search/repositories?q=${repoName}&per_page=${totalRepositoriesPerPage}&page=${currentPage}`)
             const data = await response.json()
 
@@ -64,7 +72,8 @@ function App() {
             })
 
             setRepos(repos)
-            const totalPages = Math.ceil(data.total_count/totalRepositoriesPerPage)
+
+            const totalPages = Math.ceil(data.total_count / totalRepositoriesPerPage)
             setTotalPages(totalPages)
 
         } catch (e) {
@@ -90,16 +99,30 @@ function App() {
                     />
                     <SubmitBtn type="submit">Search</SubmitBtn>
                 </InputArea>
-                <RepoList>
-                    {repos.map((repo: RepoProps, index) => (
-                        <RepoCard key={index} repo={repo} />
-                    ))}
-                </RepoList>
-                <div>
-                    <button onClick={handlePreviusPage}>Previus</button>
-                    <span>{currentPage}</span>
-                    <button onClick={handleNextPage}>Next</button>
-                </div>
+                <RepoContainer>
+                    <RepoList>
+                        {repos.map((repo: RepoProps, index) => (
+                            <RepoCard key={repo.id} repo={repo}/>
+                        ))}
+                    </RepoList>
+                </RepoContainer>
+
+                {repos.length > 0 && <PaginationContainer>
+                    <PaginationButton onClick={async (e) => {
+                        e.preventDefault();
+                        await handlePreviusPage();
+                    }
+                    }>Previous
+                    </PaginationButton>
+                    <PageNumber>{currentPage}</PageNumber>
+                    <PaginationButton onClick={async (e) => {
+                        e.preventDefault();
+                        await handleNextPage();
+                    }
+                    }>Next
+                    </PaginationButton>
+                </PaginationContainer>
+                }
             </Content>
         </Container>
     )
@@ -110,17 +133,20 @@ export default App
 const Container = styled.div`
   height: 100%;
   width: 100%;
-  margin: auto;
 `
 
 const Content = styled.div`
   margin: 0 auto;
   max-width: 800px;
   padding: 5rem;
+  
+  @media only screen and (max-width: 768px) {
+    max-width: 100%;
+    padding: 1rem;
+  }
 `
 
 const InputArea = styled.form`
-  margin: 0 auto;
   border-radius: 1.5rem;
   background: white;
   box-shadow: 0px 16px 30px -10px rgba(70, 96, 187, 0.198567);
@@ -129,9 +155,7 @@ const InputArea = styled.form`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 0.7rem 0.7rem 1.6rem;
-  transition: height 0.3s ease;
-  position: relative;
+  padding: 0.7rem 0;
 `;
 
 const Input = styled.input`
@@ -164,10 +188,38 @@ const SubmitBtn = styled.button`
   }
 `;
 
+const RepoContainer = styled.div`
+  margin: 0 auto;
+`
+
 const RepoList = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   grid-gap: 2.4rem;
   padding: 5rem 0 0 0;
-  margin: 0 auto;
+  width: 100%;
+`
+
+const PaginationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0;
+`
+
+const PaginationButton = styled.button`
+  background: black;
+  border: none;
+  height: 100%;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+  width: 8.4rem;
+  margin: 0 1rem;
+`
+const PageNumber = styled.span`
+  font-size: 1.5rem;
+  margin: 0 1rem
 `

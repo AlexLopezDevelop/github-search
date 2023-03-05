@@ -4,9 +4,8 @@ import {RepoDataProps} from "../types/repo";
 import {dateAgo} from "../formatter";
 
 export const RepoCard = ({repo}: RepoDataProps) => {
-    console.log(repo)
     return (
-            <Container>
+            <Container key={repo.id}>
                 <Link href={repo.html_url} target="_blank">
                 <RepoHeader>
                     <RepoOwner>
@@ -40,11 +39,15 @@ export const RepoCard = ({repo}: RepoDataProps) => {
 
 const Container = styled.div`
   box-shadow: 0px 5px 10px -10px rgba(70, 96, 187, 0.198567);
-  width: 100%;
   border-radius: 0.5rem;
   background: #fff;
   padding: 3rem 2.7rem;
   margin-bottom: 2.4rem;
+  font-size: 1.4rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `
 
 const RepoHeader = styled.div`
@@ -54,7 +57,6 @@ const RepoHeader = styled.div`
 `
 
 const RepoName = styled.h2`
-  font-size: 2.4rem;
   font-weight: 700;
   color: #1a1a1a;
 `
@@ -76,16 +78,18 @@ const OwnerName = styled.span`
   font-size: 1.6rem;
   font-weight: 500;
   color: #1a1a1a;
+
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+  }
 `
 
 const Time = styled.span`
-  font-size: 1.4rem;
   font-weight: 400;
   color: #1a1a1a;
 `
 
 const TimeUpdated = styled.span`
-  font-size: 1.4rem;
   font-weight: 400;
   color: #709bd0;
 `
@@ -102,6 +106,10 @@ const RepoDescription = styled.p`
   font-weight: 400;
   color: #1a1a1a;
   margin: 1.6rem 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `
 
 const RepoFooter = styled.div`
@@ -119,7 +127,6 @@ const RepoTopics = styled.div`
 `
 
 const Topic = styled.span`
-  font-size: 1.4rem;
   font-weight: 500;
   background: rgba(112, 155, 208, 0.2);
   color: #709bd0;
@@ -129,7 +136,6 @@ const Topic = styled.span`
 `
 
 const RepoLanguage = styled.span`
-  font-size: 1.4rem;
   font-weight: 500;
   color: #1a1a1a;
 `
@@ -149,7 +155,6 @@ const StarIcon = styled.img.attrs({
 `
 
 const StarCount = styled.span`
-  font-size: 1.4rem;
   font-weight: 500;
   color: #1a1a1a;
 `
