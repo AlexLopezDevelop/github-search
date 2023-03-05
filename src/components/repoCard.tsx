@@ -1,37 +1,49 @@
 import styled from "styled-components";
-import {RepoProps} from "../types/repo";
+import StarSVG from '../assets/star.png';
+import {RepoDataProps} from "../types/repo";
+import {dateAgo} from "../formatter";
 
-export const RepoCard = (repo: RepoProps) => {
+export const RepoCard = ({repo}: RepoDataProps) => {
+    console.log(repo)
     return (
-        <Container>
-            <RepoHeader>
+            <Container>
+                <Link href={repo.html_url} target="_blank">
+                <RepoHeader>
+                    <RepoOwner>
+                        <OwnerAvatar src={repo.owner.avatar_url} alt="owner"/>
+                        <OwnerName>{repo.owner.login}</OwnerName>
+                    </RepoOwner>
+                    <TimeContainer>
+                        <TimeUpdated><b>Last update: {dateAgo(repo.pushed_at)}</b></TimeUpdated>
+                        <Time>{dateAgo(repo.created_at)}</Time>
+                    </TimeContainer>
+                </RepoHeader>
+                <Divisor/>
                 <RepoName>{repo.name}</RepoName>
-                <RepoOwner>
-                    <OwnerAvatar src={repo.owner.avatar_url} alt="owner"/>
-                    <OwnerName>{repo.owner.login}</OwnerName>
-                </RepoOwner>
-            </RepoHeader>
-            <RepoDescription>{repo.description}</RepoDescription>
-            <RepoFooter>
+                <RepoDescription>{repo.description}</RepoDescription>
+                <RepoFooter>
+                    <RepoLanguage>{repo.language}</RepoLanguage>
+                    <RepoStars>
+                        <StarIcon/>
+                        <StarCount>{repo.stargazers_count}</StarCount>
+                    </RepoStars>
+                </RepoFooter>
                 <RepoTopics>
                     {repo.topics.map((topic, index) => (
-                        <Topic key={index}>{topic}</Topic>
+                        <Topic>{topic}</Topic>
                     ))}
                 </RepoTopics>
-                <RepoLanguage>{repo.language}</RepoLanguage>
-                <RepoStars>
-                    <StarIcon/>
-                    <StarCount>{repo.stargazers_count}</StarCount>
-                </RepoStars>
-            </RepoFooter>
-        </Container>
+                </Link>
+            </Container>
     )
 }
 
 const Container = styled.div`
+  box-shadow: 0px 5px 10px -10px rgba(70, 96, 187, 0.198567);
+  width: 100%;
+  border-radius: 0.5rem;
   background: #fff;
-  border-radius: 1.5rem;
-  padding: 2.4rem;
+  padding: 3rem 2.7rem;
   margin-bottom: 2.4rem;
 `
 
@@ -50,6 +62,7 @@ const RepoName = styled.h2`
 const RepoOwner = styled.div`
   display: flex;
   align-items: center;
+  margin-bottom: 1.5rem;
 `
 
 const OwnerAvatar = styled.img`
@@ -65,6 +78,25 @@ const OwnerName = styled.span`
   color: #1a1a1a;
 `
 
+const Time = styled.span`
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #1a1a1a;
+`
+
+const TimeUpdated = styled.span`
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #709bd0;
+`
+
+const Divisor = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #f1f1f1;
+  margin: 0;
+`
+
 const RepoDescription = styled.p`
   font-size: 1.6rem;
   font-weight: 400;
@@ -76,21 +108,24 @@ const RepoFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 2.5rem;
 `
 
 const RepoTopics = styled.div`
+  // scroll github topics
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
 `
 
 const Topic = styled.span`
   font-size: 1.4rem;
   font-weight: 500;
-  color: #1a1a1a;
-  background: #f1f1f1;
-  border-radius: 1.5rem;
+  background: rgba(112, 155, 208, 0.2);
+  color: #709bd0;
+  border-radius: 0.5rem;
   padding: 0.8rem 1.6rem;
-  margin-right: 1.6rem;
+  margin: 0.5rem 1rem 0.5rem 0rem;
 `
 
 const RepoLanguage = styled.span`
@@ -105,7 +140,7 @@ const RepoStars = styled.div`
 `
 
 const StarIcon = styled.img.attrs({
-    src: "/images/star.svg",
+    src: StarSVG,
     alt: "star"
 })`
   width: 1.6rem;
@@ -117,4 +152,14 @@ const StarCount = styled.span`
   font-size: 1.4rem;
   font-weight: 500;
   color: #1a1a1a;
+`
+
+const TimeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+`
+const Link = styled.a`
+    text-decoration: none;
+    color: #1a1a1a;
 `

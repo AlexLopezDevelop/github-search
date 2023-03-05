@@ -7,6 +7,7 @@ const GlobalStyle = createGlobalStyle`
   html {
     font-size: 62.5%;
     overflow-x: hidden;
+    background: #f6f6f6;
   }
   
   body,

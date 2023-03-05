@@ -8,6 +8,7 @@ export interface RepoProps {
     topics: string[];
     language: string;
     stargazers_count: number;
+    html_url: string;
 }
 
 interface Owner {
@@ -15,4 +16,8 @@ interface Owner {
     login: string;
     avatar_url: string;
     html_url: string;
+}
+
+export interface RepoDataProps {
+    repo: RepoProps;
 }
