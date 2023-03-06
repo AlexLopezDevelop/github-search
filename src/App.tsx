@@ -4,22 +4,35 @@ import {RepoProps} from "./types/repo";
 import {RepoCard} from "./components/repoCard";
 import {scrollToTop} from "./tools/scrollToTop";
 import {Player} from '@lottiefiles/react-lottie-player';
+import {AnimationItem} from "lottie-web";
 
 
 const totalRepositoriesPerPage = 10;
 
-function App() {
+function App(this: any) {
     const [repos, setRepos] = useState<RepoProps[]>([]);
     const [empty, setEmpty] = useState<boolean>(true);
     const [notData, setNotData] = useState<boolean>(false);
     const repoRef = useRef<HTMLInputElement>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
         findRepo().then(r => console.log('search'));
         scrollToTop();
     }, [currentPage]);
+
+
+    useEffect(() => {
+        const searchValue = window.localStorage.getItem('SEARCH_VALUE') || '';
+        setSearchValue(searchValue);
+
+        if (searchValue && repoRef.current) {
+            repoRef.current.value = searchValue;
+            findRepo().then(r => console.log('search'));
+        }
+    }, []);
 
     const handleNextPage = async () => {
         if (totalPages > currentPage) {
@@ -90,31 +103,49 @@ function App() {
             <Content>
                 <Search>
                     <LogoPowered>
-                        <Player
-                            src="https://assets5.lottiefiles.com/packages/lf20_f28ex302.json"
-                            autoplay={true}
-                            loop={false}
-                            style={{
-                                height: '150px',
-                                width: '300px',
-                            }}
-                        />
-                        <PoweredText>Powered by <b>Github</b></PoweredText>
+                        <LinkPowered onClick={() => {
+                            window.localStorage.setItem('SEARCH_VALUE', '');
+                            window.location.reload();
+                        }}>
+
+
+                            <Player
+                                src="https://assets5.lottiefiles.com/packages/lf20_f28ex302.json"
+                                autoplay={true}
+                                loop={false}
+                                style={{
+                                    height: '150px',
+                                    width: '300px',
+                                }}
+                            />
+                            <PoweredText>Powered by <b>Github</b></PoweredText>
+                        </LinkPowered>
                     </LogoPowered>
                     <InputArea
                         onSubmit={async (e) => {
                             e.preventDefault();
                             setCurrentPage(1)
                             await findRepo();
+                            window.localStorage.setItem('SEARCH_VALUE', repoRef.current?.value || '');
                         }}
                     >
-                        <Input
-                            ref={repoRef}
-                            name="repo"
-                            id="repo"
-                            type="text"
-                            placeholder="Search repository ..."
-                        />
+                        {searchValue === '' ?
+                            <Input
+                                ref={repoRef}
+                                name="repo"
+                                id="repo"
+                                type="text"
+                                placeholder="Search repository ..."
+                            />
+                            : <Input
+                                ref={repoRef}
+                                name="repo"
+                                id="repo"
+                                type="text"
+                                placeholder="Search repository ..."
+                                defaultValue={searchValue}
+                            />
+                        }
                         <SubmitBtn type="submit">Search</SubmitBtn>
                     </InputArea>
                 </Search>
@@ -165,6 +196,20 @@ function App() {
 
 export default App
 
+const Confetti = styled.div`
+  position: absolute;
+  bottom: -60px;
+  right: 0px;
+  height: 300px;
+  width: 300px;
+`
+
+const LinkPowered = styled.a`
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+`
+
 const PoweredText = styled.div`
   position: relative;
   bottom: 55px;
@@ -174,8 +219,8 @@ const PoweredText = styled.div`
 
 const LogoPowered = styled.div`
   position: absolute;
-  bottom: 19px;
-  left: -90px;
+  bottom: -105px;
+  right: 585px;
 `
 
 const Search = styled.div`
@@ -212,6 +257,9 @@ const InputArea = styled.form`
   justify-content: space-between;
   padding: 0.7rem 0;
   margin-top: 7rem;
+  position: absolute;
+  top: -20px;
+  left: 0px;
 `;
 
 const Input = styled.input`
@@ -245,7 +293,7 @@ const SubmitBtn = styled.button`
 `;
 
 const RepoContainer = styled.div`
-  margin: 0 auto;
+  margin: 13rem auto auto auto;
 `
 
 const RepoList = styled.div`
@@ -280,7 +328,7 @@ const PageNumber = styled.span`
   margin: 0 1rem
 `
 const NotFound = styled.div`
-  padding-top: 5rem;
+  padding-top: 17rem;
   display: flex;
   flex-direction: column;
   align-items: center;
