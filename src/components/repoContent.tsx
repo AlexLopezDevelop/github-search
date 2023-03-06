@@ -10,12 +10,13 @@ type RepoContentProps = {
     repos: RepoProps[];
     currentPage: number;
     totalPages: number;
+    notFound: boolean;
     onCurrentPageNumber: (page: number) => void
 };
 
-const RepoContent = ({notData, repos, currentPage, totalPages, onCurrentPageNumber}: RepoContentProps) => {
+const RepoContent = ({notData, repos, currentPage, totalPages, onCurrentPageNumber, notFound}: RepoContentProps) => {
 
-    if (notData) {
+   if (notFound) {
         return (
             <NotFound>
                 <Player
@@ -27,28 +28,30 @@ const RepoContent = ({notData, repos, currentPage, totalPages, onCurrentPageNumb
                 />
                 <NotFoundText>No Results</NotFoundText>
             </NotFound>
-        );
-    }
+        )
+    } else if (!notData) {
+       return (
+           <>
+               <RepoContainer>
+                   <RepoList>
+                       {repos.map((repo: RepoProps) => (
+                           <RepoCard key={repo.id} repo={repo}/>
+                       ))}
+                   </RepoList>
+               </RepoContainer>
+               <Pagination
+                   totalRepos={repos.length}
+                   currentPage={currentPage}
+                   totalPages={totalPages}
+                   onPageChange={(pageNumber) => {
+                       onCurrentPageNumber(pageNumber)
+                   }}
+               />
+           </>
+       );
+   }
 
-    return (
-        <>
-            <RepoContainer>
-                <RepoList>
-                    {repos.map((repo: RepoProps) => (
-                        <RepoCard key={repo.id} repo={repo}/>
-                    ))}
-                </RepoList>
-            </RepoContainer>
-            <Pagination
-                totalRepos={repos.length}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={(pageNumber) => {
-                    onCurrentPageNumber(pageNumber)
-                }}
-            />
-        </>
-    );
+    return <></>
 }
 
 export default RepoContent;

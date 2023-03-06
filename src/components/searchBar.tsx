@@ -11,9 +11,9 @@ type SearchBarProps = {
     onReposChange: (repos: []) => void;
     onNotData: (notData: boolean) => void;
     onCurrentPageNumber: (page: number) => void;
+    onNotFound: (empty: boolean) => void;
 }
-export const SearchBar = ({currentPage, totalRepoPerPage, onReposChange, onNotData, onCurrentPageNumber}: SearchBarProps) => {
-    const [empty, setEmpty] = useState<boolean>(true);
+export const SearchBar = ({currentPage, totalRepoPerPage, onReposChange, onNotData, onCurrentPageNumber, onNotFound}: SearchBarProps) => {
     const repoRef = useRef<HTMLInputElement>(null);
     const [totalPages, setTotalPages] = useState(0);
     const [searchValue, setSearchValue] = useState('');
@@ -35,13 +35,13 @@ export const SearchBar = ({currentPage, totalRepoPerPage, onReposChange, onNotDa
     }, []);
 
     async function findRepo() {
-        if (repoRef.current) {
-            setEmpty(false)
+        if (repoRef.current && repoRef.current.value !== '') {
             const response = await fetchRepo(repoRef.current.value, totalRepoPerPage, currentPage)
 
             if (!response) {
                 onReposChange([])
                 onNotData(true)
+                onNotFound(true)
                 return;
             }
 
@@ -50,11 +50,16 @@ export const SearchBar = ({currentPage, totalRepoPerPage, onReposChange, onNotDa
             const repos = repoDataMapper(response)
             onReposChange(repos)
 
+            if (repos.length === 0) {
+                onNotFound(true)
+            } else {
+                onNotFound(false)
+            }
+
             const totalPages = Math.ceil(response.total_count / totalRepoPerPage)
             setTotalPages(totalPages)
 
         } else {
-            setEmpty(true)
             onReposChange([])
         }
     }

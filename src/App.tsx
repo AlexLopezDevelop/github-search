@@ -1,13 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useState} from 'react'
 import styled from "styled-components";
-import {repoDataMapper, RepoProps} from "./types/repo";
-import {scrollToTop} from "./tools/scrollToTop";
-import {Player} from '@lottiefiles/react-lottie-player';
-import {fetchRepo} from "./api";
+import {RepoProps} from "./types/repo";
 import RepoContent from "./components/repoContent";
 import {SearchBar} from "./components/searchBar";
 
 function App(this: any) {
+    const [notFound, setNotFound] = useState<boolean>(false);
     const [repos, setRepos] = useState<RepoProps[]>([]);
     const [notData, setNotData] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -19,6 +17,9 @@ function App(this: any) {
                 <SearchBar
                     currentPage={currentPage}
                     totalRepoPerPage={totalRepoPerPage}
+                    onNotFound={(empty) => {
+                        setNotFound(empty)
+                    }}
                     onReposChange={(repos) => {
                         setRepos(repos)
                     }}
@@ -30,6 +31,7 @@ function App(this: any) {
                     }}
                 />
                 <RepoContent
+                    notFound={notFound}
                     repos={repos}
                     totalPages={totalRepoPerPage}
                     currentPage={currentPage}

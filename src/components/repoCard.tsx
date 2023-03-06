@@ -29,7 +29,7 @@ export const RepoCard = ({repo}: RepoDataProps) => {
                 </RepoFooter>
                 <RepoTopics>
                     {repo.topics.map((topic, index) => (
-                        <Topic>{topic}</Topic>
+                        <Topic key={index}>{topic}</Topic>
                     ))}
                 </RepoTopics>
                 </Link>
@@ -38,7 +38,7 @@ export const RepoCard = ({repo}: RepoDataProps) => {
 }
 
 const Container = styled.div`
-  box-shadow: 0px 5px 10px -10px rgba(70, 96, 187, 0.198567);
+  box-shadow: 0 5px 10px -10px rgba(70, 96, 187, 0.198567);
   border-radius: 0.5rem;
   background: #fff;
   padding: 3rem 2.7rem;
@@ -132,7 +132,7 @@ const Topic = styled.span`
   color: #709bd0;
   border-radius: 0.5rem;
   padding: 0.8rem 1.6rem;
-  margin: 0.5rem 1rem 0.5rem 0rem;
+  margin: 0.5rem 1rem 0.5rem 0;
 `
 
 const RepoLanguage = styled.span`
