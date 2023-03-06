@@ -21,3 +21,20 @@ interface Owner {
 export interface RepoDataProps {
     repo: RepoProps;
 }
+
+export function repoDataMapper(data: any) {
+    return data.items.map((repo: RepoProps) => {
+        return {
+            id: repo.id,
+            name: repo.name,
+            owner: repo.owner,
+            description: repo.description,
+            created_at: repo.created_at,
+            pushed_at: repo.pushed_at,
+            topics: repo.topics,
+            language: repo.language,
+            stargazers_count: repo.stargazers_count,
+            html_url: repo.html_url
+        }
+    })
+}
