@@ -1,11 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react'
 import styled from "styled-components";
 import {repoDataMapper, RepoProps} from "./types/repo";
-import {RepoCard} from "./components/repoCard";
 import {scrollToTop} from "./tools/scrollToTop";
 import {Player} from '@lottiefiles/react-lottie-player';
 import {fetchRepo} from "./api";
-import {Pagination} from "./components/pagination";
+import RepoContent from "./components/repoContent";
 
 function App(this: any) {
     const [repos, setRepos] = useState<RepoProps[]>([]);
@@ -107,34 +106,15 @@ function App(this: any) {
                         <SubmitBtn type="submit">Search</SubmitBtn>
                     </InputArea>
                 </Search>
-                {notData ? <NotFound>
-                        <Player
-                            src="https://assets3.lottiefiles.com/packages/lf20_uqfbsoei.json"
-                            className="player"
-                            loop
-                            autoplay
-                            style={{height: '300px', width: '300px'}}
-                        />
-                        <NotFoundText>No Results</NotFoundText>
-                    </NotFound>
-                    : <>
-                        <RepoContainer>
-                            <RepoList>
-                                {repos.map((repo: RepoProps) => (
-                                    <RepoCard key={repo.id} repo={repo}/>
-                                ))}
-                            </RepoList>
-                        </RepoContainer>
-                        <Pagination
-                            totalRepos={repos.length}
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={(pageNumber) => {
-                                setCurrentPage(pageNumber)
-                            }}
-                        />
-                    </>
-                }
+                <RepoContent
+                    repos={repos}
+                    totalPages={totalRepoPerPage}
+                    currentPage={currentPage}
+                    notData={notData}
+                    onCurrentPageNumber={(pageNumber) => {
+                        setCurrentPage(pageNumber)
+                    }}
+                />
             </Content>
         </Container>
     )
@@ -233,30 +213,3 @@ const SubmitBtn = styled.button`
     font-size: 1.7rem;
   }
 `;
-
-const RepoContainer = styled.div`
-  margin: 13rem auto auto auto;
-`
-
-const RepoList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  grid-gap: 2.4rem;
-  padding: 5rem 0 0 0;
-  width: 100%;
-`
-
-const NotFound = styled.div`
-  padding-top: 17rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-`
-
-const NotFoundText = styled.h1`
-  font-size: 2rem;
-  font-weight: bold;
-  margin-left: 1rem;
-`
