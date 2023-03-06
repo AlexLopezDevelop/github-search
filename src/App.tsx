@@ -4,8 +4,6 @@ import {RepoProps} from "./types/repo";
 import {RepoCard} from "./components/repoCard";
 import {scrollToTop} from "./tools/scrollToTop";
 import {Player} from '@lottiefiles/react-lottie-player';
-import {AnimationItem} from "lottie-web";
-
 
 const totalRepositoriesPerPage = 10;
 
@@ -196,14 +194,6 @@ function App(this: any) {
 
 export default App
 
-const Confetti = styled.div`
-  position: absolute;
-  bottom: -60px;
-  right: 0px;
-  height: 300px;
-  width: 300px;
-`
-
 const LinkPowered = styled.a`
   cursor: pointer;
   text-decoration: none;
@@ -220,7 +210,11 @@ const PoweredText = styled.div`
 const LogoPowered = styled.div`
   position: absolute;
   bottom: -105px;
-  right: 585px;
+  left: -85px;
+
+  @media only screen and (max-width: 768px) {
+    top: -55px;
+  }
 `
 
 const Search = styled.div`
@@ -237,11 +231,11 @@ const Container = styled.div`
 
 const Content = styled.div`
   margin: 0 auto;
-  max-width: 800px;
+  max-width: 700px;
   padding: 5rem;
 
   @media only screen and (max-width: 768px) {
-    max-width: 100%;
+    max-width: 350px;
     padding: 1rem;
   }
 `
