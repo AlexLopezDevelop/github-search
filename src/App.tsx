@@ -5,107 +5,30 @@ import {scrollToTop} from "./tools/scrollToTop";
 import {Player} from '@lottiefiles/react-lottie-player';
 import {fetchRepo} from "./api";
 import RepoContent from "./components/repoContent";
+import {SearchBar} from "./components/searchBar";
 
 function App(this: any) {
     const [repos, setRepos] = useState<RepoProps[]>([]);
-    const [empty, setEmpty] = useState<boolean>(true);
     const [notData, setNotData] = useState<boolean>(false);
-    const repoRef = useRef<HTMLInputElement>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-    const [searchValue, setSearchValue] = useState('');
     const [totalRepoPerPage, setTotalRepoPerPage] = useState(10);
-
-    useEffect(() => {
-        findRepo().then(() => console.log('search'));
-        scrollToTop();
-    }, [currentPage]);
-
-
-    useEffect(() => {
-        const searchValue = window.localStorage.getItem('SEARCH_VALUE') || '';
-        setSearchValue(searchValue);
-
-        if (searchValue && repoRef.current) {
-            repoRef.current.value = searchValue;
-            findRepo().then(() => console.log('search'));
-        }
-    }, []);
-
-    async function findRepo() {
-        if (repoRef.current) {
-            setEmpty(false)
-            const response = await fetchRepo(repoRef.current.value, totalRepoPerPage, currentPage)
-
-            if (!response) {
-                setRepos([])
-                setNotData(true)
-                return;
-            }
-
-            setNotData(false)
-
-            const repos = repoDataMapper(response)
-            setRepos(repos)
-
-            const totalPages = Math.ceil(response.total_count / totalRepoPerPage)
-            setTotalPages(totalPages)
-
-        } else {
-            setEmpty(true)
-            setRepos([])
-        }
-    }
 
     return (
         <Container>
             <Content>
-                <Search>
-                    <LogoPowered>
-                        <LinkPowered onClick={() => {
-                            window.localStorage.setItem('SEARCH_VALUE', '');
-                            window.location.reload();
-                        }}>
-                            <Player
-                                src="https://assets5.lottiefiles.com/packages/lf20_f28ex302.json"
-                                autoplay={true}
-                                loop={false}
-                                style={{
-                                    height: '150px',
-                                    width: '300px',
-                                }}
-                            />
-                            <PoweredText>Powered by <b>Github</b></PoweredText>
-                        </LinkPowered>
-                    </LogoPowered>
-                    <InputArea
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-                            setCurrentPage(1)
-                            await findRepo();
-                            window.localStorage.setItem('SEARCH_VALUE', repoRef.current?.value || '');
-                        }}
-                    >
-                        {searchValue === '' ?
-                            <Input
-                                ref={repoRef}
-                                name="repo"
-                                id="repo"
-                                type="text"
-                                placeholder="Search repository ..."
-                            />
-                            : <Input
-                                ref={repoRef}
-                                name="repo"
-                                id="repo"
-                                type="text"
-                                placeholder="Search repository ..."
-                                defaultValue={searchValue}
-                            />
-                        }
-                        <SubmitBtn type="submit">Search</SubmitBtn>
-                    </InputArea>
-                </Search>
+                <SearchBar
+                    currentPage={currentPage}
+                    totalRepoPerPage={totalRepoPerPage}
+                    onReposChange={(repos) => {
+                        setRepos(repos)
+                    }}
+                    onNotData={(notData) => {
+                        setNotData(notData)
+                    }}
+                    onCurrentPageNumber={(pageNumber) => {
+                        setCurrentPage(pageNumber)
+                    }}
+                />
                 <RepoContent
                     repos={repos}
                     totalPages={totalRepoPerPage}
@@ -122,36 +45,6 @@ function App(this: any) {
 
 export default App
 
-const LinkPowered = styled.a`
-  cursor: pointer;
-  text-decoration: none;
-  outline: none;
-`
-
-const PoweredText = styled.div`
-  position: relative;
-  bottom: 55px;
-  left: 210px;
-  font-size: 0.8rem;
-`
-
-const LogoPowered = styled.div`
-  position: absolute;
-  bottom: -105px;
-  left: -85px;
-
-  @media only screen and (max-width: 768px) {
-    top: -55px;
-  }
-`
-
-const Search = styled.div`
-  position: relative;
-  margin: 0 auto;
-  max-width: 800px;
-  padding: 0;
-`
-
 const Container = styled.div`
   height: 100%;
   width: 100%;
@@ -167,49 +60,3 @@ const Content = styled.div`
     padding: 1rem;
   }
 `
-
-const InputArea = styled.form`
-  border-radius: 1.5rem;
-  background: white;
-  box-shadow: 0 16px 30px -10px rgba(70, 96, 187, 0.198567);
-  width: 100%;
-  height: 6rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.7rem 0;
-  margin-top: 7rem;
-  position: absolute;
-  top: -20px;
-  left: 0;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  color: black;
-  border: none;
-  margin: 0 2.4rem;
-  font-size: 1.7rem;
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-const SubmitBtn = styled.button`
-  background: black;
-  border: none;
-  height: 100%;
-  border-radius: 1rem;
-  line-height: 2.1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
-  cursor: pointer;
-  width: 8.4rem;
-
-  @media (min-width: 768px) {
-    width: 10.6rem;
-    font-size: 1.7rem;
-  }
-`;
