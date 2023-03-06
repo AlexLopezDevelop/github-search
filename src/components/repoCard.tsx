@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import StarSVG from '../assets/star.png';
 import {RepoDataProps} from "../types/repo";
-import {dateAgo} from "../formatter";
+import {dateAgo} from "../tools/formatter";
 
 export const RepoCard = ({repo}: RepoDataProps) => {
     return (

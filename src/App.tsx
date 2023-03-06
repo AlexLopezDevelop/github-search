@@ -2,8 +2,11 @@ import React, {useEffect, useRef, useState} from 'react'
 import styled from "styled-components";
 import {RepoProps} from "./types/repo";
 import {RepoCard} from "./components/repoCard";
+import {scrollToTop} from "./tools/scrollToTop";
+import {Player} from '@lottiefiles/react-lottie-player';
 
-const totalRepositoriesPerPage = 30;
+
+const totalRepositoriesPerPage = 10;
 
 function App() {
     const [repos, setRepos] = useState<RepoProps[]>([]);
@@ -14,7 +17,8 @@ function App() {
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        findRepo().then(r => console.log('serach'));
+        findRepo().then(r => console.log('search'));
+        scrollToTop();
     }, [currentPage]);
 
     const handleNextPage = async () => {
@@ -48,7 +52,7 @@ function App() {
             const response = await fetch(`https://api.github.com/search/repositories?q=${repoName}&per_page=${totalRepositoriesPerPage}&page=${currentPage}`)
             const data = await response.json()
 
-            if (response.status !== 200) {
+            if (response.status !== 200 || data.total_count === 0) {
                 setRepos([])
                 setNotData(true)
                 return;
@@ -84,44 +88,75 @@ function App() {
     return (
         <Container>
             <Content>
-                <InputArea
-                    onSubmit={async (e) => {
-                        e.preventDefault();
-                        await findRepo();
-                    }}
-                >
-                    <Input
-                        ref={repoRef}
-                        name="repo"
-                        id="repo"
-                        type="text"
-                        placeholder="Search repository ..."
-                    />
-                    <SubmitBtn type="submit">Search</SubmitBtn>
-                </InputArea>
-                <RepoContainer>
-                    <RepoList>
-                        {repos.map((repo: RepoProps, index) => (
-                            <RepoCard key={repo.id} repo={repo}/>
-                        ))}
-                    </RepoList>
-                </RepoContainer>
+                <Search>
+                    <LogoPowered>
+                        <Player
+                            src="https://assets5.lottiefiles.com/packages/lf20_f28ex302.json"
+                            autoplay={true}
+                            loop={false}
+                            style={{
+                                height: '150px',
+                                width: '300px',
+                            }}
+                        />
+                        <PoweredText>Powered by <b>Github</b></PoweredText>
+                    </LogoPowered>
+                    <InputArea
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            setCurrentPage(1)
+                            await findRepo();
+                        }}
+                    >
+                        <Input
+                            ref={repoRef}
+                            name="repo"
+                            id="repo"
+                            type="text"
+                            placeholder="Search repository ..."
+                        />
+                        <SubmitBtn type="submit">Search</SubmitBtn>
+                    </InputArea>
+                </Search>
+                {notData ? <NotFound>
+                        <Player
+                            src="https://assets3.lottiefiles.com/packages/lf20_uqfbsoei.json"
+                            className="player"
+                            loop
+                            autoplay
+                            style={{height: '300px', width: '300px'}}
+                        />
+                        <NotFoundText>No Results</NotFoundText>
+                    </NotFound>
+                    : <>
+                        <RepoContainer>
+                            <RepoList>
+                                {repos.map((repo: RepoProps, index) => (
+                                    <RepoCard key={repo.id} repo={repo}/>
+                                ))}
+                            </RepoList>
+                        </RepoContainer>
 
-                {repos.length > 0 && <PaginationContainer>
-                    <PaginationButton onClick={async (e) => {
-                        e.preventDefault();
-                        await handlePreviusPage();
-                    }
-                    }>Previous
-                    </PaginationButton>
-                    <PageNumber>{currentPage}</PageNumber>
-                    <PaginationButton onClick={async (e) => {
-                        e.preventDefault();
-                        await handleNextPage();
-                    }
-                    }>Next
-                    </PaginationButton>
-                </PaginationContainer>
+                        {repos.length > 0 && <>
+                            <PaginationContainer>
+                                {currentPage > 1 && <PaginationButton onClick={async (e) => {
+                                    e.preventDefault();
+                                    await handlePreviusPage();
+                                }
+                                }>Previous
+                                </PaginationButton>}
+                                <PageNumber>{currentPage}</PageNumber>
+                                <PaginationButton onClick={async (e) => {
+                                    e.preventDefault();
+                                    await handleNextPage();
+                                }
+                                }>Next
+                                </PaginationButton>
+                            </PaginationContainer>
+                        </>
+
+                        }
+                    </>
                 }
             </Content>
         </Container>
@@ -129,6 +164,26 @@ function App() {
 }
 
 export default App
+
+const PoweredText = styled.div`
+  position: relative;
+  bottom: 55px;
+  left: 210px;
+  font-size: 0.8rem;
+`
+
+const LogoPowered = styled.div`
+  position: absolute;
+  bottom: 19px;
+  left: -90px;
+`
+
+const Search = styled.div`
+  position: relative;
+  margin: 0 auto;
+  max-width: 800px;
+  padding: 0rem;
+`
 
 const Container = styled.div`
   height: 100%;
@@ -139,7 +194,7 @@ const Content = styled.div`
   margin: 0 auto;
   max-width: 800px;
   padding: 5rem;
-  
+
   @media only screen and (max-width: 768px) {
     max-width: 100%;
     padding: 1rem;
@@ -156,6 +211,7 @@ const InputArea = styled.form`
   align-items: center;
   justify-content: space-between;
   padding: 0.7rem 0;
+  margin-top: 7rem;
 `;
 
 const Input = styled.input`
@@ -222,4 +278,18 @@ const PaginationButton = styled.button`
 const PageNumber = styled.span`
   font-size: 1.5rem;
   margin: 0 1rem
+`
+const NotFound = styled.div`
+  padding-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`
+
+const NotFoundText = styled.h1`
+  font-size: 2rem;
+  font-weight: bold;
+  margin-left: 1rem;
 `
